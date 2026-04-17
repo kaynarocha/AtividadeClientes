@@ -33,11 +33,21 @@ public class ClienteService {
     public Clientes atualizar(
             Long id,
             ClientesRequestDTO cliente) {
-        Clientes clientePersist =
-                this.clientesResquestDtoParaClientes(cliente);
-        clientePersist.setId(id);
+        if (clienteRepositorio.existsById(id)) {
+            Clientes clientePersist =
+                    this.clientesResquestDtoParaClientes(cliente);
+            clientePersist.setId(id);
 
-        return clienteRepositorio.save(clientePersist);
+            return clienteRepositorio.save(clientePersist);
+        }
+        throw new RuntimeException("Cliente não encontrado");
+    }
+
+    public void deletar(Long id) {
+        if (clienteRepositorio.existsById(id)) {
+            clienteRepositorio.deleteById(id);
+        }
+        throw new RuntimeException("Cliente não encontrado");
     }
 
     private Clientes clientesResquestDtoParaClientes(

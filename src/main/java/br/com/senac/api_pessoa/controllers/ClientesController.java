@@ -3,6 +3,7 @@ package br.com.senac.api_pessoa.controllers;
 import br.com.senac.api_pessoa.dtos.ClientesRequestDTO;
 import br.com.senac.api_pessoa.entidades.Clientes;
 import br.com.senac.api_pessoa.repositorios.ClienteRepositorio;
+import br.com.senac.api_pessoa.services.ClienteService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -14,66 +15,66 @@ import java.util.List;
 @RequestMapping("/clientes")
 public class ClientesController {
 
-    private ClienteRepositorio ClienteRepositorio;
+    private ClienteService clienteService;
 
-    public ClientesController(ClienteRepositorio ClienteRepositorio) {
-        this.ClienteRepositorio = ClienteRepositorio;
+    public ClientesController(ClienteService clienteService) {
+        this.clienteService = clienteService;
     }
 
     @GetMapping("/listar")
     public ResponseEntity<List<Clientes>> listar () {
-        List<Clientes> clientesList = ClienteRepositorio.findAll();
-        if (clientesList.isEmpty()) {
-            return ResponseEntity.status(204).body(null);
+       return ResponseEntity
+               .ok(this.clienteService.listar());
         }
-        return ResponseEntity.ok(clientesList);
-    }
 
     @PostMapping("/criar")
     public ResponseEntity<Clientes> criar (
             @RequestBody ClientesRequestDTO clientes) {
+        try {
+            return ResponseEntity.ok(clienteService.criar(clientes));
+        } catch (Exception e) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(null);
+        }
 
-        Clientes clientePersist = new Clientes();
-        clientePersist.setNome(clientes.getNome());
-        clientePersist.setSobrenome(clientes.getSobrenome());
-        clientePersist.setEmail(clientes.getEmail());
-        clientePersist.setIdade(clientes.getIdade());
-        clientePersist.setDocumento(clientes.getDocumento());
-
-        Clientes retorno =  ClienteRepositorio.save(clientePersist);
-
-        return ResponseEntity.status(201).body(retorno);
     }
 
     @PutMapping("/atualizar/{id}")
     public ResponseEntity<Clientes> atualizar (
             @RequestBody ClientesRequestDTO clientes, @PathVariable Long id) {
+        try {
+            return ResponseEntity
+                    .ok(clienteService.atualizar(id, clientes));
 
-        if (ClienteRepositorio.existsById(id)) {
-            Clientes clientePersist = new Clientes();
-            clientePersist.setNome(clientes.getNome());
-            clientePersist.setSobrenome(clientes.getSobrenome());
-            clientePersist.setEmail(clientes.getEmail());
-            clientePersist.setIdade(clientes.getIdade());
-            clientePersist.setDocumento(clientes.getDocumento());
-            clientePersist.setId(id);
+        } catch (RuntimeException e) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(null);
 
-            Clientes retorno = ClienteRepositorio.save(clientePersist);
-
-            return ResponseEntity.ok(retorno);
+        } catch (Exception e) {
+            return ResponseEntity
+                    .internalServerError()
+                    .body(null);
         }
-        return ResponseEntity.badRequest().body(null);
     }
 
     @DeleteMapping("/deletar/{id}")
     public ResponseEntity<Clientes> deletar (
             @PathVariable Long id) {
-        if (ClienteRepositorio.existsById(id)) {
-            ClienteRepositorio.deleteById(id);
-
+        try {
+            clienteService.deletar(id);
             return ResponseEntity.ok(null);
-        }
-        return ResponseEntity.badRequest().body(null);
-    }
 
+        } catch (RuntimeException e) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(null);
+
+        } catch (Exception e) {
+            return ResponseEntity
+                    .internalServerError()
+                    .body(null);
+        }
+    }
 }
