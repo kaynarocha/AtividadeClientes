@@ -22,13 +22,13 @@ public class ClientesController {
     }
 
     @GetMapping("/listar")
-    public ResponseEntity<List<Clientes>> listar () {
-       return ResponseEntity
-               .ok(this.clienteService.listar());
-        }
+    public ResponseEntity<List<Clientes>> listar() {
+        return ResponseEntity
+                .ok(this.clienteService.listar());
+    }
 
     @PostMapping("/criar")
-    public ResponseEntity<Clientes> criar (
+    public ResponseEntity<Clientes> criar(
             @RequestBody ClientesRequestDTO clientes) {
         try {
             return ResponseEntity.ok(clienteService.criar(clientes));
@@ -41,7 +41,7 @@ public class ClientesController {
     }
 
     @PutMapping("/atualizar/{id}")
-    public ResponseEntity<Clientes> atualizar (
+    public ResponseEntity<Clientes> atualizar(
             @RequestBody ClientesRequestDTO clientes, @PathVariable Long id) {
         try {
             return ResponseEntity
@@ -60,7 +60,7 @@ public class ClientesController {
     }
 
     @DeleteMapping("/deletar/{id}")
-    public ResponseEntity<Clientes> deletar (
+    public ResponseEntity<Clientes> deletar(
             @PathVariable Long id) {
         try {
             clienteService.deletar(id);
@@ -77,4 +77,23 @@ public class ClientesController {
                     .body(null);
         }
     }
+
+    @GetMapping("/listar/{id}")
+    public ResponseEntity<Clientes> listarById(
+            @PathVariable Long id) {
+        try {
+            return ResponseEntity
+                    .ok(clienteService.listarById(id));
+        } catch (RuntimeException e) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(null);
+        } catch (Exception e) {
+            return ResponseEntity
+                    .internalServerError()
+                    .body(null);
+        }
+    }
+
+    @GetMapping("/listar/{nome}")
 }
